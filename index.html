@@ -14,7 +14,7 @@
         body {
             font-family: 'Courier New', monospace;
             background: #000;
-            color: #0ff;
+            color: #fff;
             overflow: hidden;
         }
 
@@ -26,129 +26,117 @@
 
         .controls {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #0ff;
-            padding: 20px;
-            min-width: 280px;
-            max-height: 90vh;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #000;
+            padding: 12px;
+            width: 200px;
+            max-height: 92vh;
             overflow-y: auto;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
         }
 
         .controls::-webkit-scrollbar {
-            width: 8px;
+            width: 4px;
         }
 
         .controls::-webkit-scrollbar-track {
-            background: #000;
+            background: #fff;
         }
 
         .controls::-webkit-scrollbar-thumb {
-            background: #0ff;
-            border-radius: 4px;
+            background: #000;
         }
 
         .controls h1 {
-            font-size: 18px;
-            margin-bottom: 20px;
+            font-size: 10px;
+            margin-bottom: 12px;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 2px;
-            text-shadow: 0 0 10px #0ff;
+            color: #000;
         }
 
         .control-group {
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
 
         .control-group label {
             display: block;
-            margin-bottom: 6px;
-            font-size: 11px;
+            margin-bottom: 3px;
+            font-size: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #0ff;
+            letter-spacing: 0.5px;
+            color: #000;
         }
 
         .control-group input[type="range"] {
             width: 100%;
-            height: 4px;
-            background: #0ff;
+            height: 2px;
+            background: #000;
             outline: none;
-            opacity: 0.7;
-            transition: opacity 0.2s;
             -webkit-appearance: none;
-        }
-
-        .control-group input[type="range"]:hover {
-            opacity: 1;
         }
 
         .control-group input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #0ff;
+            width: 10px;
+            height: 10px;
+            background: #000;
             cursor: pointer;
-            box-shadow: 0 0 10px #0ff;
         }
 
         .control-group input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: #0ff;
+            width: 10px;
+            height: 10px;
+            background: #000;
             cursor: pointer;
             border: none;
-            box-shadow: 0 0 10px #0ff;
         }
 
         .control-group input[type="color"] {
             width: 100%;
-            height: 32px;
-            border: 2px solid #0ff;
-            background: #000;
+            height: 24px;
+            border: 1px solid #000;
+            background: #fff;
             cursor: pointer;
         }
 
         .control-group .value {
             display: inline-block;
             float: right;
-            color: #f0f;
-            font-weight: bold;
-            text-shadow: 0 0 5px #f0f;
+            color: #666;
+            font-weight: normal;
+            font-size: 8px;
         }
 
         button {
             width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            background: transparent;
-            border: 2px solid #0ff;
-            color: #0ff;
+            padding: 6px;
+            margin-top: 6px;
+            background: #000;
+            border: 1px solid #000;
+            color: #fff;
             font-family: 'Courier New', monospace;
-            font-size: 12px;
+            font-size: 8px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         button:hover {
-            background: #0ff;
-            color: #000;
-            box-shadow: 0 0 15px #0ff;
+            background: #333;
         }
 
         .info {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #0ff;
-            font-size: 10px;
-            opacity: 0.6;
+            bottom: 15px;
+            left: 15px;
+            color: #fff;
+            font-size: 8px;
+            opacity: 0.5;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -208,11 +196,6 @@
         <div class="control-group">
             <label>Line Color</label>
             <input type="color" id="lineColor" value="#00ffff">
-        </div>
-
-        <div class="control-group">
-            <label>Point Color</label>
-            <input type="color" id="pointColor" value="#ff00ff">
         </div>
 
         <button id="regenerate">⟳ REGENERATE</button>
@@ -294,7 +277,6 @@
             rotation: 0.2,
             bloom: 1.5,
             lineColor: 0x00ffff,
-            pointColor: 0xff00ff,
             time: 0
         };
 
@@ -410,11 +392,11 @@
                     // Normalize height to 0-1 range
                     const normalizedHeight = (height - minHeight) / (maxHeight - minHeight + 0.001);
 
-                    // Create color gradient from cyan -> magenta -> yellow based on height
+                    // Create color gradient with wider hue range based on height
                     const color = new THREE.Color();
                     // Use HSL for smooth color transitions
-                    // Hue: 180 (cyan) -> 300 (magenta) -> 60 (yellow)
-                    const hue = 0.5 + normalizedHeight * 0.5; // 0.5 (cyan) to 1.0 (red/magenta)
+                    // Hue: 0.15 (deep blue) through cyan, green, yellow, orange to red (1.0)
+                    const hue = 0.15 + normalizedHeight * 0.85; // Wide spectrum from blue to red
                     color.setHSL(hue, 1.0, 0.6);
 
                     colors.push(color.r, color.g, color.b);
@@ -459,7 +441,7 @@
             pointsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
             const pointsMaterial = new THREE.PointsMaterial({
-                size: 0.5,
+                size: 7.5,
                 transparent: true,
                 opacity: 1.0,
                 sizeAttenuation: true,
@@ -530,11 +512,6 @@
 
         document.getElementById('lineColor').addEventListener('input', (e) => {
             params.lineColor = parseInt(e.target.value.replace('#', '0x'));
-            createGrid();
-        });
-
-        document.getElementById('pointColor').addEventListener('input', (e) => {
-            params.pointColor = parseInt(e.target.value.replace('#', '0x'));
             createGrid();
         });
 
