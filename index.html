@@ -226,8 +226,8 @@
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
         }
     }
     </script>
@@ -237,6 +237,7 @@
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
         // Scene setup
         const scene = new THREE.Scene();
@@ -267,15 +268,19 @@
 
         // Post-processing
         const composer = new EffectComposer(renderer);
-        composer.addPass(new RenderPass(scene, camera));
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
 
         const bloomPass = new UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
             1.5, // strength
             0.4, // radius
-            0.85 // threshold
+            0.1 // threshold (lower = more bloom)
         );
         composer.addPass(bloomPass);
+
+        const outputPass = new OutputPass();
+        composer.addPass(outputPass);
 
         // Parameters
         let params = {
@@ -424,40 +429,19 @@
                 gridGroup.add(line);
             }
 
-            // Add points at intersections
+            // Add points at intersections - render on top of lines
             const pointsGeometry = new THREE.BufferGeometry().setFromPoints(points);
             const pointsMaterial = new THREE.PointsMaterial({
                 color: params.pointColor,
-                size: 0.15,
+                size: 0.2,
                 transparent: true,
-                opacity: 0.9,
-                sizeAttenuation: true
+                opacity: 1.0,
+                sizeAttenuation: true,
+                depthTest: false // Render on top of everything
             });
             const pointsMesh = new THREE.Points(pointsGeometry, pointsMaterial);
+            pointsMesh.renderOrder = 999; // Ensure points render last
             gridGroup.add(pointsMesh);
-
-            // Add vertical pillars at peaks
-            const peakThreshold = params.height * 0.6;
-            for (let i = 0; i <= size; i += 5) {
-                for (let j = 0; j <= size; j += 5) {
-                    if (heightMap[i][j] > peakThreshold) {
-                        const x = i - halfSize;
-                        const z = j - halfSize;
-                        const pillarPoints = [
-                            new THREE.Vector3(x, 0, z),
-                            new THREE.Vector3(x, heightMap[i][j], z)
-                        ];
-                        const pillarGeometry = new THREE.BufferGeometry().setFromPoints(pillarPoints);
-                        const pillarMaterial = new THREE.LineBasicMaterial({
-                            color: params.pointColor,
-                            transparent: true,
-                            opacity: 0.4
-                        });
-                        const pillar = new THREE.Line(pillarGeometry, pillarMaterial);
-                        gridGroup.add(pillar);
-                    }
-                }
-            }
         }
 
         // Initialize grid
