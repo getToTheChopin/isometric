@@ -365,6 +365,9 @@
             const size = params.gridSize;
             const halfSize = size / 2;
             const points = [];
+            const colors = [];
+            let minHeight = Infinity;
+            let maxHeight = -Infinity;
 
             // Calculate heights for all vertices
             const heightMap = [];
@@ -393,6 +396,28 @@
 
                     heightMap[i][j] = height;
                     points.push(new THREE.Vector3(x, height, z));
+
+                    // Track min/max for color mapping
+                    minHeight = Math.min(minHeight, height);
+                    maxHeight = Math.max(maxHeight, height);
+                }
+            }
+
+            // Calculate colors based on height
+            for (let i = 0; i <= size; i++) {
+                for (let j = 0; j <= size; j++) {
+                    const height = heightMap[i][j];
+                    // Normalize height to 0-1 range
+                    const normalizedHeight = (height - minHeight) / (maxHeight - minHeight + 0.001);
+
+                    // Create color gradient from cyan -> magenta -> yellow based on height
+                    const color = new THREE.Color();
+                    // Use HSL for smooth color transitions
+                    // Hue: 180 (cyan) -> 300 (magenta) -> 60 (yellow)
+                    const hue = 0.5 + normalizedHeight * 0.5; // 0.5 (cyan) to 1.0 (red/magenta)
+                    color.setHSL(hue, 1.0, 0.6);
+
+                    colors.push(color.r, color.g, color.b);
                 }
             }
 
@@ -431,12 +456,14 @@
 
             // Add points at intersections - render on top of lines
             const pointsGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            pointsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
             const pointsMaterial = new THREE.PointsMaterial({
-                color: params.pointColor,
-                size: 0.2,
+                size: 0.5,
                 transparent: true,
                 opacity: 1.0,
                 sizeAttenuation: true,
+                vertexColors: true,
                 depthTest: false // Render on top of everything
             });
             const pointsMesh = new THREE.Points(pointsGeometry, pointsMaterial);
